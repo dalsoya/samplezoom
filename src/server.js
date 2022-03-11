@@ -1,5 +1,4 @@
 import http from "http";
-import WebSocket from "ws";
 import express from "express";
 
 const app = express();
@@ -15,8 +14,7 @@ const handleListen = () => console.log(`Listening on http://localhost:3000`);
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-const sockets = [];
-
+/* const sockets = [];
 wss.on("connection", (socket) => {
   sockets.push(socket);
   socket["nickname"] = "anonymous";
@@ -31,7 +29,7 @@ wss.on("connection", (socket) => {
         socket["nickname"] = message.payload;
     }
   });
-});
+}); */
 
 server.listen(3000, handleListen);
 
