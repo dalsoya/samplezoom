@@ -13,10 +13,14 @@ async function getCameras() {
   try {
     const devices = await navigator.mediaDevices.enumerateDevices();
     const cameras = devices.filter(device => device.kind === "videoinput");
+    const currentCamera = myStream.getVideoTracks()[0];
     cameras.forEach((camera) => {
       const option = document.createElement("option");
       option.value = camera.deviceId;
       option.innerText = camera.label;
+      if (currentCamera.label === camera.label) {
+        option.selected = true;
+      }
       camerasSelect.appendChild(option);
     })
   } catch (e) {
@@ -24,14 +28,24 @@ async function getCameras() {
   }
 }
 
-async function getMedia() {
+async function getMedia(deviceID) {
+  const initialConstrains = {
+    audio: true,
+    video: { facingMode: "user" },
+  };
+  const cameraConstraints = {
+    audio: true,
+    video: { deviceID: { exact: deviceID } },
+  };
   try {
-    myStream = await navigator.mediaDevices.getUserMedia({
-      audio: true,
-      video: true,
-    });
+
+    myStream = await navigator.mediaDevices.getUserMedia(
+      deviceID ? cameraConstraints : initialConstrains
+    );
     // console.log(myStream);  // DOMException cause without camera
-    await getCameras();
+    if (!deviceID) {
+      await getCameras();
+    }
     myFace.srcObject = myStream;
   } catch (e) {
     console.log(e);
@@ -61,8 +75,8 @@ function handleCameraClick() {
   }
 }
 
-function handleCameraChange() {
-  console.log(camerasSelect.value);
+async function handleCameraChange() {
+  await getMedia(camerasSelect.value);
 }
 
 muteBtn.addEventListener("click", handleMuteClick);
